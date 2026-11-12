@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% block title %}Heart disease risk{% endblock %}
+{% block content %}
+<h1>Heart disease risk</h1>
+
+{% if result %}
+<div class="card result {{ 'high' if result.prediction else 'low' }}">
+  <div>Estimated probability of heart disease</div>
+  <div class="big">{{ result.percent }}%</div>
+  <div class="bar"><div style="width: {{ result.percent }}%"></div></div>
+  <p>{{ "Higher risk: the model predicts heart disease is likely."
+        if result.prediction else
+        "Lower risk: the model predicts heart disease is unlikely." }}</p>
+</div>
+{% endif %}
+
+{% if error %}<p class="error">{{ error }}</p>{% endif %}
+
+<form method="post" class="card">
+  <div class="grid">
+    {% for f in fields %}
+    <div>
+      <label for="{{ f.name }}">{{ f.label }}</label>
+      {% if f.choices %}
+      <select id="{{ f.name }}" name="{{ f.name }}" required>
+        {% for value, text in f.choices %}
+        <option value="{{ value }}" {{ "selected" if values.get(f.name) == value|string }}>{{ text }}</option>
+        {% endfor %}
+      </select>
+      {% else %}
+      <input id="{{ f.name }}" name="{{ f.name }}" type="number" required
+             min="{{ f.min }}" max="{{ f.max }}" step="{{ f.step }}"
+             value="{{ values.get(f.name, '') }}">
+      {% endif %}
+    </div>
+    {% endfor %}
+  </div>
+  <button type="submit">Estimate risk</button>
+</form>
+{% endblock %}

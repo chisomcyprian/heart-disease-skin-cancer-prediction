@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>Two models, one app</h1>
+<p>Machine learning demos for heart disease risk and skin lesion classification.</p>
+<div class="grid">
+  <div class="card">
+    <h2>Heart disease risk</h2>
+    <p>Enter 13 clinical measurements and get an estimated risk, from a
+       logistic regression model trained on the UCI Cleveland dataset.</p>
+    <a class="button" href="{{ url_for('heart') }}">Open heart tool</a>
+  </div>
+  <div class="card">
+    <h2>Skin lesion classifier</h2>
+    <p>Upload a dermoscopy image and see the predicted lesion type with a
+       heatmap of where the model looked. </p>
+    <a class="button" href="{{ url_for('skin') }}">Open skin tool</a>
+  </div>
+</div>
+{% endblock %}
