@@ -7,6 +7,8 @@ Two machine learning models served through one Flask web app:
 
 > **Disclaimer:** This is an educational project. It is not a medical device and must not be used for diagnosis.
 
+**Live demo:** https://heart-disease-skin-cancer-prediction.onrender.com
+
 ## Demo
 
 | Heart disease risk | Skin lesion classifier |
@@ -58,6 +60,7 @@ EfficientNet-B0 fine-tuned for 10 epochs on a free Colab T4 GPU.
 - **Explainability.** Grad-CAM heatmaps show which part of the image drove each prediction.
 - **Privacy.** Uploaded images are processed in memory and never written to disk.
 - **No false certainty.** Displayed probabilities are capped at 99%.
+- **Lightweight serving.** The skin model is trained in PyTorch, then exported to ONNX with its class activation maps built in. The server runs ONNX Runtime only, so the whole app fits in 512 MB of memory. For this architecture the maps are mathematically equivalent to Grad-CAM, without needing gradients.
 
 ## Limitations
 
@@ -71,7 +74,7 @@ EfficientNet-B0 fine-tuned for 10 epochs on a free Colab T4 GPU.
 ```
 app/            Flask app and templates
 src/heart/      download, explore, train, predict
-src/skin/       predict, Grad-CAM
+src/skin/       ONNX export, predict, heatmap
 notebooks/      Colab training notebook for the skin model
 models/         trained models
 reports/        figures
@@ -100,10 +103,12 @@ python src/heart/train.py
 ```
 
 To retrain the skin model, open `notebooks/skin_cancer_training.ipynb` in Google Colab with a GPU runtime.
+Retraining needs the development requirements: `pip install -r requirements-dev.txt`
 
 ## Tests
 
 ```bash
+pip install -r requirements-dev.txt
 python -m pytest -v
 ```
 
