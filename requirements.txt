@@ -9,3 +9,5 @@ pillow
 pytest
 jupyter
 ucimlrepo
+torch
+torchvision
