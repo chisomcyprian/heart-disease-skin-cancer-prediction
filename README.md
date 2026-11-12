@@ -103,6 +103,7 @@ python src/heart/train.py
 ```
 
 To retrain the skin model, open `notebooks/skin_cancer_training.ipynb` in Google Colab with a GPU runtime.
+
 Retraining needs the development requirements: `pip install -r requirements-dev.txt`
 
 ## Tests
