@@ -1,38 +1,28 @@
 import numpy as np
-import torch
-from matplotlib import colormaps
 from PIL import Image
 
-from src.skin.predict import _tf, load_model
+from src.skin.predict import run_model
+
+
+def _jet(v):
+    """Blue-to-red colour map for values between 0 and 1."""
+    r = np.clip(1.5 - np.abs(4 * v - 3), 0, 1)
+    g = np.clip(1.5 - np.abs(4 * v - 2), 0, 1)
+    b = np.clip(1.5 - np.abs(4 * v - 1), 0, 1)
+    return np.stack([r, g, b], axis=-1)
 
 
 def gradcam(image: Image.Image) -> Image.Image:
     """Return the image overlaid with a heatmap of where the model looked."""
-    model = load_model()
     image = image.convert("RGB")
-    x = _tf(image).unsqueeze(0)
+    logits, cams = run_model(image)
 
-    # Capture the output of the last convolutional block
-    store = {}
-    hook = model.features[-1].register_forward_hook(
-        lambda module, inp, out: store.update(act=out)
-    )
-    try:
-        out = model(x)
-    finally:
-        hook.remove()
+    # The exported model outputs one 7x7 activation map per class
+    cam = np.maximum(cams[int(logits.argmax())], 0)
+    cam = cam / (cam.max() + 1e-8)
 
-    # How much does each feature map push the winning class?
-    score = out[0, out.argmax()]
-    grads = torch.autograd.grad(score, store["act"])[0]
-    weights = grads.mean(dim=(2, 3), keepdim=True)
-    cam = torch.relu((weights * store["act"]).sum(dim=1))[0]
-    cam = (cam / (cam.max() + 1e-8)).detach().numpy()
-
-    # Stretch the 7x7 map to image size, colour it, blend it
     heat = Image.fromarray(np.uint8(cam * 255)).resize(image.size, Image.BILINEAR)
-    colored = colormaps["jet"](np.asarray(heat) / 255.0)[..., :3]
-    colored = Image.fromarray(np.uint8(colored * 255))
+    colored = Image.fromarray(np.uint8(_jet(np.asarray(heat) / 255.0) * 255))
     return Image.blend(image, colored, alpha=0.4)
 
 

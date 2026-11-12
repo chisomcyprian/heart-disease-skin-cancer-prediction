@@ -1,0 +1,10 @@
+-r requirements.txt
+matplotlib
+seaborn
+jupyter
+pytest
+ucimlrepo
+torch
+torchvision
+onnx
+onnxscript
